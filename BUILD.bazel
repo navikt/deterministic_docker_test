@@ -6,7 +6,7 @@ container_image(
     name = "determ-docker-test",
     base = "@nav_java_12//image",
     files = [
-        #"build/libs/app.jar", # Må til /app
+        "build/libs/app.jar", # Må til /app
         "build/libs/ktor-io-jvm-1.4.3.jar",
     ],
     labels = {
