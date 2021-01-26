@@ -47,7 +47,9 @@ jobs:
         run: |
           "${GITHUB_WORKSPACE}/bin/bazel" build //:determ-docker-test
           "${GITHUB_WORKSPACE}/bin/bazel" run //:determ-docker-test
-          docker inspect bazel:determ-docker-test
+          docker image inspect bazel:determ-docker-test
+          echo "INSPECT .Config.Image = "
+          docker image inspect bazel:determ-docker-test -f '{{.Config.Image}}'
 
 #         -  name: Build and publish Docker image
 #            env:
