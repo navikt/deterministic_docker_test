@@ -53,6 +53,7 @@ jobs:
           echo "INSPECT .Id = "
           docker image inspect bazel:determ-docker-test -f '{{.Id}}'
           echo "app.jar = "
+          ls -l build/libs/app.jar
           shasum -a 256 build/libs/app.jar
 
 #         -  name: Build and publish Docker image
