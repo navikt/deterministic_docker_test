@@ -1,0 +1,74 @@
+name: Bygg og deploy ved push til master
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  IMAGE: docker.pkg.github.com/${{ github.repository }}/determ-docker-test:${{ github.sha }}
+
+jobs:
+  build:
+    name: Build and push Docker container
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Mount bazel cache
+        uses: actions/cache@v1
+        with:
+          path: "/home/runner/.cache/bazel"
+          key: bazel
+      - name: Install bazelisk
+        run: |
+          curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64"
+          mkdir -p "${GITHUB_WORKSPACE}/bin/"
+          mv bazelisk-linux-amd64 "${GITHUB_WORKSPACE}/bin/bazel"
+          chmod +x "${GITHUB_WORKSPACE}/bin/bazel"
+
+      - uses: gradle/wrapper-validation-action@v1
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+      - name: test and build
+        run: ./gradlew test build
+        env:
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bazel Build Docker image
+        run: |
+          "${GITHUB_WORKSPACE}/bin/bazel" build //:determ-docker-test
+          "${GITHUB_WORKSPACE}/bin/bazel" run //:determ-docker-test
+          docker inspect bazel:determ-docker-test
+
+#         -  name: Build and publish Docker image
+#            env:
+#               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#            run: |
+#               docker build --tag ${IMAGE} .
+#               docker image inspect ${IMAGE} -f '{{.ContainerConfig.Image}}'
+#               docker image inspect ${IMAGE}
+#               docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
+#               docker push ${IMAGE}
+
+#   deploy_to_dev:
+#      name: Deploy to dev
+#      needs: build
+#      if: github.ref == 'refs/heads/master'
+#      runs-on: ubuntu-latest
+#      steps:
+#         -  uses: actions/checkout@v1
+#         -  uses: nais/deploy/actions/deploy@v1
+#            env:
+#               APIKEY: ${{ secrets.NAIS_DEPLOY_API_KEY }}
+#               CLUSTER: dev-fss
+#               RESOURCE: deploy/nais.yml
+#               VARS: deploy/dev.yml

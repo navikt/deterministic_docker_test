@@ -1,0 +1,18 @@
+name: Vulnerabilities scanning of dependencies
+on: push
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/gradle@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          ORG_GRADLE_PROJECT_githubUser: x-access-token
+          ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          command: monitor
+          args: --configuration-matching=^runtimeClasspath$|^compileClasspath$ --org=risk --project-name=${{ github.repository }} --remote-repo-url=https://github.com/${{ github.repository }}.git
+

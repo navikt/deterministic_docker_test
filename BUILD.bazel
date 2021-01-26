@@ -1,0 +1,17 @@
+
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+# package(default_visibility = ["//visibility:public"])
+
+container_image(
+    name = "determ-docker-test",
+    base = "@nav_java_12//image",
+    files = [
+        "build/libs/app.jar", # Må til /app
+    ],
+    labels = {
+        "desc": "Description for version 7.7",
+        "version": "7.7",
+    },
+)
+
+
