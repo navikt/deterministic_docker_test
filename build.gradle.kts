@@ -109,9 +109,7 @@ tasks.named<Jar>("jar") {
         ZipInputStream(source.inputStream()).use { zipInputStream ->
             var z = zipInputStream.nextEntry
             while (z != null) {
-                //val bytes = zipInputStream.readAllBytes()
-                val bytes = ByteArray(zipInputStream.available())
-                zipInputStream.read(bytes)
+                val bytes = zipInputStream.readBytes()
                 val converted = z.apply {
                     setCreationTime(epoch)
                     setLastAccessTime(epoch)
