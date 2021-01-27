@@ -171,10 +171,10 @@ tasks.named<Jar>("jar") {
         val appJar = File(pathStringToAppJar)
         val app2Jar = File(pathStringToApp2Jar)
 
-        //makeCanonicalZip(source = appJar, destination = app2Jar)
+        makeCanonicalZip(source = appJar, destination = app2Jar)
 
-        //Files.delete(pathToAppJar)
-        //File(pathStringToApp2Jar).renameTo(File(pathStringToAppJar))
+        Files.delete(pathToAppJar)
+        File(pathStringToApp2Jar).renameTo(File(pathStringToAppJar))
         setFileTimeToEpoch(pathToAppJar)
 
         //hexDump(pathStringToAppJar)
