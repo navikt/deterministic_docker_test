@@ -114,7 +114,7 @@ tasks.named<Jar>("jar") {
                 val uncompressedBytes = ByteArray(z.size.safeToInt())
                 zipInputStream.read(uncompressedBytes)
                 val crc32 = CRC32().apply { update(uncompressedBytes) }
-                /*val converted = ZipEntry(z.name).apply {
+                val converted = ZipEntry(z.name).apply {
                     method = ZipOutputStream.STORED
                     crc = crc32.value
                     size = uncompressedBytes.size.toLong()
@@ -122,12 +122,12 @@ tasks.named<Jar>("jar") {
                     setCreationTime(epoch)
                     setLastAccessTime(epoch)
                     setLastModifiedTime(epoch)
-                }*/
-                val converted = z.apply {
+                }
+                /*val converted = z.apply {
                     setCreationTime(epoch)
                     setLastAccessTime(epoch)
                     setLastModifiedTime(epoch)
-                }
+                }*/
                 entries.add(converted to uncompressedBytes)
                 z = zipInputStream.nextEntry
             }
@@ -136,7 +136,7 @@ tasks.named<Jar>("jar") {
         entries.sortBy { it.first.name }
 
         ZipOutputStream(destination.outputStream()).use { o ->
-            //o.setMethod(ZipOutputStream.STORED)
+            o.setMethod(ZipOutputStream.STORED)
             entries.forEach {
                 o.putNextEntry(it.first)
                 o.write(it.second)
