@@ -56,6 +56,9 @@ jobs:
           jar -tfv build/libs/app.jar
           ls -l build/libs/app.jar
           shasum -a 256 build/libs/app.jar
+          export IMAGE_ID="$(docker image inspect bazel:determ-docker-test -f '{{.Id}}')"
+          docker tag ${IMAGE_ID} ${IMAGE}
+          docker image inspect ${IMAGE}
 
 #         -  name: Build and publish Docker image
 #            env:
