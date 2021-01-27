@@ -4,8 +4,14 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-
+      - uses: actions/checkout@v1
+      - uses: gradle/wrapper-validation-action@v1
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
       - uses: actions/setup-java@v1
         with:
           java-version: '12.x'
