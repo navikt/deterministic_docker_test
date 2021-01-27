@@ -54,8 +54,8 @@ nb-configuration.xml
 *.swp
 
 target/
-/bazel-bin/
-/bazel-deterministic_docker_test/
-/bazel-out/
-/bazel-testlogs/
+bazel-bin
+bazel-deterministic_docker_test
+bazel-out
+bazel-testlogs
 
