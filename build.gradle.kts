@@ -7,6 +7,8 @@ import java.lang.IllegalArgumentException
 import java.nio.file.attribute.FileTime
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.io.File
+import java.io.FileInputStream
 
 val junitJupiterVersion = "5.6.3"
 val ktorVersion = "1.4.3"
@@ -89,6 +91,25 @@ tasks.named<Jar>("jar") {
         }
     }
 
+    fun hexDump(fn: String) {
+        val f = File(fn)
+        val bytes: ByteArray = FileInputStream(f).use { fis ->
+            fis.readAllBytes()
+        }
+
+        for (i in 0..bytes.size - 1) {
+            val b = bytes[i]
+            if (i.rem(48) == 0) {
+                print(" :$i")
+                println()
+            }
+            if (b >= 32 && b <= 125) {
+                print(" " + b.toChar() + " ")
+            } else {
+                print(String.format("%02x ", bytes[i]))
+            }
+        }
+    }
 
     fun makeCanonicalZip(source: File, destination: File) {
         val epoch = FileTime.fromMillis(0)
@@ -103,7 +124,7 @@ tasks.named<Jar>("jar") {
                 val uncompressedBytes = ByteArray(z.size.safeToInt())
                 zipInputStream.read(uncompressedBytes)
                 val crc32 = CRC32().apply { update(uncompressedBytes) }
-                val converted = ZipEntry(z).apply {
+                val converted = ZipEntry(z.name).apply {
                     method = ZipOutputStream.STORED
                     crc = crc32.value
                     size = uncompressedBytes.size.toLong()
@@ -112,6 +133,12 @@ tasks.named<Jar>("jar") {
                     setLastAccessTime(epoch)
                     setLastModifiedTime(epoch)
                 }
+                println(converted.toString())
+                println(converted.hashCode())
+                println(converted.comment)
+                println(converted.extra)
+                //println(converted.timeLocal)
+                println(converted.time)
                 entries.add(converted to uncompressedBytes)
                 z = zipInputStream.nextEntry
             }
@@ -151,7 +178,7 @@ tasks.named<Jar>("jar") {
         val libDir = "$buildDir/libs"
         val pathStringToAppJar = "$libDir/app.jar"
         val pathStringToApp2Jar = "$libDir/app2.jar"
-        val pathToAppJar = Paths.get(libDir,"app.jar")
+        val pathToAppJar = Paths.get(libDir, "app.jar")
         val appJar = File(pathStringToAppJar)
         val app2Jar = File(pathStringToApp2Jar)
 
@@ -160,6 +187,8 @@ tasks.named<Jar>("jar") {
         Files.delete(pathToAppJar)
         File(pathStringToApp2Jar).renameTo(File(pathStringToAppJar))
         setFileTimeToEpoch(pathToAppJar)
+
+        hexDump(pathStringToAppJar)
 
     }
 
