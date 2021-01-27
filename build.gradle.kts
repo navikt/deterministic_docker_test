@@ -1,6 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.*
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.CRC32
+import java.lang.IllegalArgumentException
 import java.nio.file.attribute.FileTime
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -87,6 +90,45 @@ tasks.named<Jar>("jar") {
     }
 
 
+    fun makeCanonicalZip(source: File, destination: File) {
+        val epoch = FileTime.fromMillis(0)
+        fun Long.safeToInt(): Int =
+            if (this > Int.MAX_VALUE.toLong()) throw IllegalArgumentException("Long too big for Int") else this.toInt()
+
+        val entries = mutableListOf<Pair<ZipEntry, ByteArray>>()
+
+        ZipInputStream(source.inputStream()).use { zipInputStream ->
+            var z = zipInputStream.nextEntry
+            while (z != null) {
+                val uncompressedBytes = ByteArray(z.size.safeToInt())
+                zipInputStream.read(uncompressedBytes)
+                val crc32 = CRC32().apply { update(uncompressedBytes) }
+                val converted = ZipEntry(z).apply {
+                    method = ZipOutputStream.STORED
+                    crc = crc32.value
+                    size = uncompressedBytes.size.toLong()
+                    compressedSize = size
+                    setCreationTime(epoch)
+                    setLastAccessTime(epoch)
+                    setLastModifiedTime(epoch)
+                }
+                entries.add(converted to uncompressedBytes)
+                z = zipInputStream.nextEntry
+            }
+        }
+
+        entries.sortBy { it.first.name }
+
+        ZipOutputStream(destination.outputStream()).use { o ->
+            o.setMethod(ZipOutputStream.STORED)
+            entries.forEach {
+                o.putNextEntry(it.first)
+                o.write(it.second)
+            }
+        }
+    }
+
+
     fun copyJarsWithDeterministicTimestamps() {
         val epoch = FileTime.fromMillis(0)
 
@@ -110,28 +152,10 @@ tasks.named<Jar>("jar") {
         val pathStringToAppJar = "$libDir/app.jar"
         val pathStringToApp2Jar = "$libDir/app2.jar"
         val pathToAppJar = Paths.get(libDir,"app.jar")
-        //val pathToApp2Jar = Paths.get(libDir,"app2.jar")
         val appJar = File(pathStringToAppJar)
         val app2Jar = File(pathStringToApp2Jar)
 
-        ZipOutputStream(app2Jar.outputStream()).use { o ->
-            ZipInputStream(appJar.inputStream()).use { i ->
-                val buffer = ByteArray(8192)
-                var z = i.nextEntry
-                while (z != null) {
-                    o.putNextEntry(
-                        z.setCreationTime(epoch)
-                            .setLastAccessTime(epoch)
-                            .setLastModifiedTime(epoch)
-                    )
-                    var n: Int
-                    while (i.read(buffer, 0, buffer.size).also { n = it } > 0) {
-                        o.write(buffer, 0, n)
-                    }
-                    z = i.nextEntry
-                }
-            }
-        }
+        makeCanonicalZip(source = appJar, destination = app2Jar)
 
         Files.delete(pathToAppJar)
         File(pathStringToApp2Jar).renameTo(File(pathStringToAppJar))
