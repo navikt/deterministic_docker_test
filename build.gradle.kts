@@ -91,25 +91,15 @@ tasks.named<Jar>("jar") {
         }
     }
 
-    fun hexDump(fn: String) {
-        val f = File(fn)
-        val bytes: ByteArray = FileInputStream(f).use { fis ->
-            fis.readAllBytes()
-        }
-
+    /*fun hexDump(fn: String) {
+        val bytes: ByteArray = FileInputStream(File(fn)).use { fis -> fis.readAllBytes() }
         for (i in 0..bytes.size - 1) {
-            val b = bytes[i]
-            if (i.rem(48) == 0) {
-                print(" :$i")
-                println()
-            }
-            if (b >= 32 && b <= 125) {
-                print(" " + b.toChar() + " ")
-            } else {
-                print(String.format("%02x ", bytes[i]))
+            bytes[i].let { theByte ->
+                if (i.rem(48) == 0) println(" :$i")
+                if (theByte in 32..125) print(" " + theByte.toChar() + " ") else print(String.format("%02x ", bytes[i]))
             }
         }
-    }
+    }*/
 
     fun makeCanonicalZip(source: File, destination: File) {
         val epoch = FileTime.fromMillis(0)
@@ -133,12 +123,6 @@ tasks.named<Jar>("jar") {
                     setLastAccessTime(epoch)
                     setLastModifiedTime(epoch)
                 }
-                println(converted.toString())
-                println(converted.hashCode())
-                println(converted.comment)
-                println(converted.extra)
-                //println(converted.timeLocal)
-                println(converted.time)
                 entries.add(converted to uncompressedBytes)
                 z = zipInputStream.nextEntry
             }
@@ -188,8 +172,7 @@ tasks.named<Jar>("jar") {
         File(pathStringToApp2Jar).renameTo(File(pathStringToAppJar))
         setFileTimeToEpoch(pathToAppJar)
 
-        hexDump(pathStringToAppJar)
-
+        //hexDump(pathStringToAppJar)
     }
 
     doLast {
