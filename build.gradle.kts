@@ -2,13 +2,11 @@ import org.jetbrains.kotlin.gradle.tasks.*
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import java.util.zip.ZipEntry
-import java.util.zip.CRC32
 import java.lang.IllegalArgumentException
 import java.nio.file.attribute.FileTime
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.io.File
-import java.io.FileInputStream
 
 val junitJupiterVersion = "5.6.3"
 val ktorVersion = "1.4.3"
@@ -111,23 +109,7 @@ tasks.named<Jar>("jar") {
         ZipInputStream(source.inputStream()).use { zipInputStream ->
             var z = zipInputStream.nextEntry
             while (z != null) {
-                /*val uncompressedBytes = ByteArray(z.size.safeToInt())
-                val n = zipInputStream.read(uncompressedBytes)
-                zipInputStream.byte*/
-
-                //println("n = $n uncompSize = ${uncompressedBytes.size}
                 val bytes = zipInputStream.readAllBytes()
-
-                //val crc32 = CRC32().apply { update(uncompressedBytes) }
-                /*val converted = ZipEntry(z.name).apply {
-                    method = ZipOutputStream.STORED
-                    crc = crc32.value
-                    size = uncompressedBytes.size.toLong()
-                    compressedSize = size
-                    setCreationTime(epoch)
-                    setLastAccessTime(epoch)
-                    setLastModifiedTime(epoch)
-                }*/
                 val converted = z.apply {
                     setCreationTime(epoch)
                     setLastAccessTime(epoch)
@@ -141,7 +123,6 @@ tasks.named<Jar>("jar") {
         entries.sortBy { it.first.name }
 
         ZipOutputStream(destination.outputStream()).use { o ->
-            //o.setMethod(ZipOutputStream.STORED)
             entries.forEach {
                 o.putNextEntry(it.first)
                 o.write(it.second)
