@@ -61,6 +61,12 @@ jobs:
           export IMAGE_ID="$(docker image inspect bazel:determ-docker-test -f '{{.Id}}')"
           docker tag ${IMAGE_ID} ${IMAGE}
           docker image inspect ${IMAGE}
+
+          echo "#### Testing with Dockerfile also: ####
+          docker build . -t dbuildtest:1
+          docker image inspect dbuildtest:1
+
+          echo "#### pushing ${IMAGE} : ####
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
 
