@@ -1,18 +1,45 @@
 
+
+
+
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+
+# load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+
+load("@rules_pkg//:pkg.bzl", "pkg_tar")
+
+
 # package(default_visibility = ["//visibility:public"])
 
 container_image(
     name = "determ-docker-test",
     base = "@nav_java_12//image",
-    files = [
-        "build/libs/app.jar", # Må til /app
-        "build/libs/ktor-io-jvm-1.4.3.jar",
-    ],
+    #files = [
+    #    "build/libs/app.jar", # Må til /app
+    #    "build/libs/ktor-io-jvm-1.4.3.jar",
+    #],
+    tars = [":build-libs"],
+    #files = glob(["build/libs/*.jar"]),
+    #[":build-libs"],
     labels = {
         "desc": "Description for version 7.7",
         "version": "7.7",
     },
 )
+
+filegroup(
+    name = "myjars",
+    srcs = glob([
+        "**/*.jar",
+    ]),
+)
+
+pkg_tar(
+    name = "build-libs",
+    package_dir = "/app",
+    srcs = [":myjars"],
+    mode = "0644",
+)
+
 
 
