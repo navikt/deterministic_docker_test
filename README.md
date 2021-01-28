@@ -83,5 +83,12 @@ måtte også "imageid.sign" vært med (eventuelt som en hex-string-verdi i en ya
 og en eller annen peker til PublicKey, men det er uansett greit å gjøre public key tilgjengelig i CI-pipelinen
 for å kunne preverifisere.. for det er jo ikke noe vits å pushe til registry eller prøve deploy dersom signaturen uansett vil feile.
 
+Så:
+
+Commit en endring uten å oppdatere signatur -> Bygget feiler
+
+Signer og commit signaturen -> Bygget går igjennom igjen.... burde hvertfall...  :-)
+
+
 
 
