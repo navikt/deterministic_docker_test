@@ -1,5 +1,5 @@
 
-## POC av hvordan potensielt kunne gjort ende-til-ende signering mellom utvikler-PC og deployment-agent (feks. NAIS deploy(?))
+## POC av hvordan en potensielt kunne gjort ende-til-ende signering mellom utvikler-PC og deployment-agent (feks. NAIS deploy(?))
 
 
 ### Hva?
@@ -20,16 +20,17 @@ Docker-imaget inneholder en "Id" som skal være en SHA256-hash over config-json-
 Config-JSON-filen igjen inneholder en liste over SHA256-hasher over inneholdet i hver enkelt layer (i form av TAR-filer). 
 Altså har nødvendigvis to docker-imager med samme "Id" også akkurat samme innhold.
 
-(repo-digest som også kan brukes til å f.eks. pinne et spesifikt docker-image fra et repo kan ikke brukes til dette, 
-for denne er visstnok avhengig av hvilket repo docker-imaget er pushet til. Den kalkuleres vel heller ikke før imaget er pushet,
-sånn at et lokalt bygd docker-image _har_ faktisk ikke noe RepoDigest, 
-mens "Id" er samme lokalt og remote, siden selve innholdet i imaget er det samme)
-
 Tanken er da at dersom utvikler genererer en signatur over "Id" (som er en sha256-hash),
 og dersom denne signaturen sendes til deploy-agenten,
 og dersom deploy-agenten er i besittelse av utviklers public-key,
 så kan deployment-agenten ekstrahere "Id" fra docker-imaget og ved hjelp av public-keyen og signaturen
 verifisere at utvikler har gått god for akkurat dette docker-imaget.
+
+(repo-digest som også kan brukes til å f.eks. pinne et spesifikt docker-image fra et repo kan ikke brukes til dette,
+for denne er visstnok avhengig av hvilket repo docker-imaget er pushet til. Den kalkuleres vel heller ikke før imaget er pushet,
+sånn at et lokalt bygd docker-image _har_ faktisk ikke noe RepoDigest,
+mens "Id" er samme lokalt og remote, siden selve innholdet i imaget er det samme)
+
 
 ### Og hvordan få til det?
 
