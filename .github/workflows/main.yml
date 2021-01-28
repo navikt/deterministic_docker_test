@@ -50,35 +50,23 @@ jobs:
           "${GITHUB_WORKSPACE}/bin/bazel" build //:determ-docker-test
           "${GITHUB_WORKSPACE}/bin/bazel" run //:determ-docker-test
           docker image inspect bazel:determ-docker-test
-          echo "INSPECT .Config.Image = "
-          docker image inspect bazel:determ-docker-test -f '{{.Config.Image}}'
           echo "INSPECT .Id = "
           docker image inspect bazel:determ-docker-test -f '{{.Id}}'
+
           echo "app.jar = "
           jar -tfv build/libs/app.jar
           ls -l build/libs/app.jar
           shasum -a 256 build/libs/app.jar
+
           export IMAGE_ID="$(docker image inspect bazel:determ-docker-test -f '{{.Id}}')"
           docker tag ${IMAGE_ID} ${IMAGE}
-          docker image inspect ${IMAGE}
 
-          echo "##### Testing with Dockerfile also: #####"
-          docker build . -t dbuildtest:1
-          docker image inspect dbuildtest:1
+          echo "Preverifying"
+          ./preverify.sh
 
-          echo "#### pushing ${IMAGE} : ####"
+          echo "Pushing ${IMAGE}"
           docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
           docker push ${IMAGE}
-
-    #         -  name: Build and publish Docker image
-    #            env:
-    #               GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #            run: |
-    #               docker build --tag ${IMAGE} .
-    #               docker image inspect ${IMAGE} -f '{{.ContainerConfig.Image}}'
-    #               docker image inspect ${IMAGE}
-    #               docker login docker.pkg.github.com -u ${GITHUB_REPOSITORY} -p ${GITHUB_TOKEN}
-    #               docker push ${IMAGE}
 
   deploy_to_dev:
     name: Deploy to dev

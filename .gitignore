@@ -59,3 +59,4 @@ bazel-deterministic_docker_test
 bazel-out
 bazel-testlogs
 
+/key.pem
