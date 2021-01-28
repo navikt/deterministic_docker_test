@@ -70,14 +70,14 @@ PrivateKey havner da i "key.pem" som ligger i .gitignore-fila. Public-key havner
 
 For å signere:
 
-```sign.sh```
+```./sign.sh```
 
-Denne bygger docker-imaget med Bazel (viktig gradle-build er kjørt først), 
+Denne bygger docker-imaget med Bazel (viktig at gradle-build er kjørt først), 
 plukker ut "Id" og genererer en signatur over denne, som den legger i "imageid.sign".
 
 "key.pub" og "imageid.sign" må sjekkes inn sammen med eventuelle kode-endringer.
 
-```/preverify.sh``` brukes i CI-pipelinen for å sjekke om signaturen stemmer (trenger da key.pub og imageid.sign), og avbryter bygget hvis ikke.
+```./preverify.sh``` brukes i CI-pipelinen for å sjekke om signaturen stemmer (trenger da key.pub og imageid.sign), og avbryter bygget hvis ikke.
 
 Ved "ordentlig" ende-til-ende-verifisering med verifisering på deploy-agent 
 måtte også "imageid.sign" vært med (eventuelt som en hex-string-verdi i en yaml-fil f.eks.),
