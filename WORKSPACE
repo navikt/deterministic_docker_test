@@ -9,8 +9,6 @@ http_archive(
     urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.15.0/rules_docker-v0.15.0.tar.gz"],
 )
 
-
-
 load(
     "@io_bazel_rules_docker//repositories:repositories.bzl",
     container_repositories = "repositories",
@@ -30,23 +28,20 @@ load(
 # Google Container Registry	gcr.io
 # Gitlab Container Registry	registry.gitlab.com
 # Github Packages1	docker.pkg.github.com
-#
-#
-#
 
+
+# BASE-IMAGE:
 container_pull(
     name = "nav_java_12",
     registry = "index.docker.io",
     repository = "navikt/java",
     tag = "12",
-)
-
-container_pull(
-  name = "java_base",
-  registry = "gcr.io",
-  repository = "distroless/java",
-  # 'tag' is also supported, but digest is encouraged for reproducibility.
-  digest = "sha256:deadbeef",
+    digest = "sha256:5030f54c1f029b8f5f1e523266e835abc8620715ddff51252c760022fa85ae5c"
+    # TODO: ev. "sign"-script bør sjekke om dette er nyeste versjon og gi beskjed hvis ikke:
+    # digest ovenfor er pinned av denne i navikt/java:12 :
+    # "RepoDigests": [
+    #    "navikt/java@sha256:5030f54c1f029b8f5f1e523266e835abc8620715ddff51252c760022fa85ae5c"
+    # ],
 )
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
