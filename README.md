@@ -80,9 +80,10 @@ plukker ut "Id" og genererer en signatur over denne, som den legger i "imageid.s
 ```./preverify.sh``` brukes i CI-pipelinen for å sjekke om signaturen stemmer (trenger da key.pub og imageid.sign), og avbryter bygget hvis ikke.
 
 Ved "ordentlig" ende-til-ende-verifisering med verifisering på deploy-agent 
-måtte også "imageid.sign" vært med (eventuelt som en hex-string-verdi i en yaml-fil f.eks.),
-og en eller annen peker til PublicKey, men det er uansett greit å gjøre public key tilgjengelig i CI-pipelinen
-for å kunne preverifisere.. for det er jo ikke noe vits å pushe til registry eller prøve deploy dersom signaturen uansett vil feile.
+så måtte også "imageid.sign" alltid vært med (eventuelt som en hex-string-verdi i en yaml-fil f.eks.),
+samt en eller annen peker til PublicKey for nøkkelen som har gjort signeringen, 
+men det er uansett greit å la public key være tilgjengelig i CI-pipelinen - sånn som her -
+for å kunne preverifisere.. for det er jo ikke noe vits å pushe til registry eller prøve deploy dersom signaturverifiseringen uansett vil feile.
 
 Så:
 
