@@ -40,6 +40,7 @@ jobs:
       - name: Bazel Build Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # NB: BAZEL_CONTAINER_IMAGE_TARGET_NAME must be in sync with sign.sh, preverify.sh and BUILD.bazel
           BAZEL_CONTAINER_IMAGE_TARGET_NAME: determ-docker-test
         run: |
           # Build bazel docker image:
@@ -49,7 +50,7 @@ jobs:
 
           export IMAGE_ID="$(docker image inspect bazel:${BAZEL_CONTAINER_IMAGE_TARGET_NAME} -f '{{.Id}}')"
           echo "Image Id = ${IMAGE_ID}"
-          # TAG our image with desired tag:
+          # TAG our image with desired name/tag:
           docker tag ${IMAGE_ID} ${IMAGE}
 
           echo "Preverifying"
