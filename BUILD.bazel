@@ -2,12 +2,12 @@ load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
 
 container_image(
-    # name: When imported to local docker REPOSITORY will be "bazel" and "TAG" will this name.
+    # name: When imported to local docker, REPOSITORY will be "bazel" and TAG will be this name.
     # Docker tag-command can then be used to tag with another name and tag.
     name = "determ-docker-test",
-    # base: This is defined container_pull-target in the WORKSPACE-file:
+    # base: This is defined in container_pull-target in the WORKSPACE-file:
     base = "@nav_java_12//image",
-    # tars: pkg_tar-target is used to place files into a specific directory.dock
+    # tars: pkg_tar-target is used to place files into a specific directory.
     tars = [":build-libs"],
     labels = {
         "desc": "Description for version 7.7",
