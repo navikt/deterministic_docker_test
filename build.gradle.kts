@@ -16,6 +16,8 @@ val slf4jVersion = "1.7.30"
 val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "6.5"
 val serializerVersion = "1.0.1"
+val apacheCxfVersion = "3.3.5"
+val jakartaActivationVersion = "1.2.2"
 
 group = "no.nav.helse"
 
@@ -23,6 +25,8 @@ plugins {
     val kotlinVersion = "1.4.21"
     kotlin("jvm") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
+    id("com.github.bjornvester.xjc") version "1.3"
+    id("no.nils.wsdl2java") version "0.12"
     application
 }
 
@@ -31,6 +35,36 @@ repositories {
     maven("http://packages.confluent.io/maven/")
     jcenter()
 }
+
+
+
+wsdl2java {
+    wsdlDir = file("$projectDir/src/main/resources/wsdl")
+    wsdlsToGenerate = listOf(
+        listOf("$wsdlDir/Grunndata.wsdl")
+    )
+}
+
+xjc {
+    xsdDir.set(layout.projectDirectory.dir("src/main/resources/xsd"))
+    xsdFiles = project.files(
+        xsdDir.file("HentRoller.xsd")
+    )
+
+    outputJavaDir.set(layout.projectDirectory.dir("$buildDir/generated-sources/xsd2java"))
+    outputResourcesDir.set(layout.projectDirectory.dir("target/generated-sources/resources"))
+}
+
+configure<SourceSetContainer> {
+    named("main") {
+        println(buildDir)
+        java.srcDir("src/main/java")
+        java.srcDir("$buildDir/generated-sources/xsd2java")
+        java.srcDir("$buildDir/generated-sources/wsdl2java")
+    }
+}
+
+
 
 dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -53,6 +87,9 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashEncoderVersion")
 
+    implementation("org.apache.cxf:cxf-rt-frontend-jaxws:$apacheCxfVersion")
+    implementation("org.apache.cxf:cxf-rt-transports-http:$apacheCxfVersion")
+    implementation("com.sun.activation:jakarta.activation:$jakartaActivationVersion")
 
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")

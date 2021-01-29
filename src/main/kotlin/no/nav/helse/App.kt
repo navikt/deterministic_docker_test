@@ -2,6 +2,7 @@ package no.nav.helse
 
 import io.prometheus.client.CollectorRegistry
 import kotlinx.coroutines.*
+import no.nav.helse.testgreier.TestNoeXmlGreier
 import org.apache.kafka.common.KafkaException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -31,9 +32,12 @@ fun main() {
         applicationContext.close()
     })
 
+    val grunndata = TestNoeXmlGreier().grunndata
+
     suspend fun someFunctionality() {
         while (healthy) {
             log.info("Soy yo! Soy su Sam!")
+            log.info(grunndata.melding.kontaktperson.samendring.first().rolle.first().person.first().fornavn)
             delay(Duration.ofMinutes(1).toMillis())
         }
     }
