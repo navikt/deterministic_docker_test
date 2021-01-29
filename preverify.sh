@@ -24,6 +24,7 @@ ls -l build/libs/app.jar
 echo "SHA256 over app.jar = "
 shasum -a 256 build/libs/app.jar
 java --version
+./gradlew --version
 
 echo "Signature verification failed. No reason to continue with deploy. Compare image-info and app.jar SHA256 above with local image for debugging."
 exit 1
