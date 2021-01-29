@@ -41,7 +41,7 @@ repositories {
 wsdl2java {
     wsdlDir = file("$projectDir/src/main/resources/wsdl")
     wsdlsToGenerate = listOf(
-        listOf("$wsdlDir/Grunndata.wsdl")
+        listOf("-wsdlLocation", "wsdl/Grunndata.wsdl", "$wsdlDir/Grunndata.wsdl")
     )
 }
 
