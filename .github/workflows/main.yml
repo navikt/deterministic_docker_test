@@ -40,13 +40,14 @@ jobs:
       - name: Bazel Build Docker image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BAZEL_CONTAINER_IMAGE_TARGET_NAME: determ-docker-test
         run: |
           # Build bazel docker image:
-          "${GITHUB_WORKSPACE}/bin/bazel" build //:determ-docker-test
+          "${GITHUB_WORKSPACE}/bin/bazel" build //:${BAZEL_CONTAINER_IMAGE_TARGET_NAME}
           # Import from bazel into local docker registry:
-          "${GITHUB_WORKSPACE}/bin/bazel" run //:determ-docker-test
+          "${GITHUB_WORKSPACE}/bin/bazel" run //:${BAZEL_CONTAINER_IMAGE_TARGET_NAME}
 
-          export IMAGE_ID="$(docker image inspect bazel:determ-docker-test -f '{{.Id}}')"
+          export IMAGE_ID="$(docker image inspect bazel:${BAZEL_CONTAINER_IMAGE_TARGET_NAME} -f '{{.Id}}')"
           echo "Image Id = ${IMAGE_ID}"
           # TAG our image with desired tag:
           docker tag ${IMAGE_ID} ${IMAGE}
