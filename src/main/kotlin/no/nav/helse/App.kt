@@ -33,7 +33,7 @@ fun main() {
 
     suspend fun someFunctionality() {
         while (healthy) {
-            log.info("Soy yo! Soy su Sam!!!")
+            log.info("Soy yo! Soy su Sam!")
             delay(Duration.ofMinutes(1).toMillis())
         }
     }
