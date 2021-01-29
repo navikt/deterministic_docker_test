@@ -3,10 +3,11 @@ BAZEL_CONTAINER_IMAGE_TARGET_NAME="determ-docker-test"
 IMAGE_TAG="bazel:${BAZEL_CONTAINER_IMAGE_TARGET_NAME}"
 
 IMAGE_ID="$(docker image inspect ${IMAGE_TAG} -f '{{.Id}}')"
+# Format of "Id" is sha256:00112233... etc, so strip a way the first 7 chars to get the actual sha256-hash as hex
 IMAGE_ID_HASH=${IMAGE_ID:7}
 echo Image-ID hash = $IMAGE_ID_HASH
 
-echo "Pre-Verifying the signature over ImageID = ${IMAGE_ID_HASH}"
+echo "Pre-Verifying the signature over ImageID = ${IMAGE_ID_HASH} using key.pub"
 echo -n $IMAGE_ID_HASH | xxd -r -p | openssl pkeyutl -verify -pubin -inkey key.pub -sigfile imageid.sign -pkeyopt digest:sha256 -keyform PEM
 
 if [ $? -eq 0 ]

@@ -75,21 +75,72 @@ For å signere:
 Denne bygger docker-imaget med Bazel (viktig at gradle-build er kjørt først), 
 plukker ut "Id" og genererer en signatur over denne, som den legger i "imageid.sign".
 
-"key.pub" og "imageid.sign" må sjekkes inn sammen med eventuelle kode-endringer.
+"key.pub" og "imageid.sign" må sjekkes inn sammen med eventuelle kode-endringer 
+("key.pub" bare første gang - eller hvis man bytter nøkkel - og "imageid.sign" hver gang man har gjort en endring som _skal_ deployes 
+(trengs ikke hvis ikke endringen skal deployes - så sånn sett fungerer signeringen også som en "Deploy this!"-kommando.))
 
-```./preverify.sh``` brukes i CI-pipelinen for å sjekke om signaturen stemmer (trenger da key.pub og imageid.sign), og avbryter bygget hvis ikke.
-
-Ved "ordentlig" ende-til-ende-verifisering med verifisering på deploy-agent 
-så måtte også "imageid.sign" alltid vært med (eventuelt som en hex-string-verdi i en yaml-fil f.eks.),
-samt en eller annen peker til PublicKey for nøkkelen som har gjort signeringen, 
-men det er uansett greit å la public key være tilgjengelig i CI-pipelinen - sånn som her -
-for å kunne preverifisere.. for det er jo ikke noe vits å pushe til registry eller prøve deploy dersom signaturverifiseringen uansett vil feile.
+```./preverify.sh``` brukes i CI-pipelinen for å sjekke om signaturen stemmer (bruker da key.pub og imageid.sign), og avbryter bygget hvis ikke.
 
 Så:
 
-Commit en endring uten å oppdatere signatur -> Bygget feiler
+- Commit en endring uten å oppdatere signatur -> Bygget feiler før deploy
 
-Signer og commit signaturen -> Bygget går igjennom igjen.... burde hvertfall...  :-)
+- Signer og commit signaturen -> Bygget går igjennom til deploy igjen.... burde hvertfall...  :-)
+
+
+Tanken er at hvis signatur-verifiseringen feiler i pipelinen, så vil signaturverifiseringen garantert også feile ved deploy,
+og det er jo ikke noe vits å pushe til registry eller prøve deploy dersom signaturverifiseringen uansett vil feile.
+
+Men det [preverify.sh](preverify.sh) gjør er da i prinsippet akkurat det samme som det som må gjøres på Deployment-Agent´en for å verifisere docker-imaget.
+Innholdet i "imageid.sign" må altså formidles til deployment-agenten, f.eks. som en hex-string-verdi i deployment-yaml.
+
+Hovedforskjellen er at her i "preverify" verifiseres signaturen opp mot "pub.key" som ligger i repoet (hvor det tas for gitt at denne er gyldig/riktig).
+Denne public-Key´en kunne også godt vært sendt med (i yaml feks) til deployment-agent, men deployment agenten er nødt til å
+verifisere at denne public-key faktisk representerer noe(n) som har rettigheter til å deploye denne appen (eller til dette namespacet).
+Da må nødvendigvis deploymant-agent ha tilgang til en liste over hvilke public-keys som er knyttet til hvilke rettigheter.
+
+Dette _kunne_ f.eks. vært en-til-en mellom nøkkel og utvikler; veldig enkelt og greit, og det funker jo, men det _kan_ jo bli jo da en god del nøkler å holde styr på 
+(nye nøkler/utviklere kommer til, nøkler må rulleres eller kommer på avveie og må revokeres etc.)
+
+Alternativt - hvis man ønsker mindre vedlikehold/oppdateringer på server - kan man flytte litt av ansvaret ut til teamene selv,,,
+ved å tenke litt PKI(PublicKeyInfrastructure)-ish, hvor deployment-agent kun sitter med en liste over "rot-nøkler", f.eks. én per Team/namespace,
+og hvor teamet kun bruker rot-nøkkelen til å "utstede" individuelle nøkler med begrenset varighet (og ev. med begrenset rettighet/"usage") - altså rett og slett "sertifikater".
+
+På deploy-agent siden vil det da eventuelt ikke være stort mer komplisert enn at man må sjekke to signaturer i stedet for én, 
+men hvor man til gjengjeld da kan slippe unna med litt mindre "gjennomtrekk" i publickey-listene.
+
+
+
+### Bazel? Deterministisk docker-bygg? Så mye styr da?
+
+Når man har bazel-oppsettet i orden, og når man har cachet base-image, så vil ikke et ny-bygg + re-signering lokalt ta mer enn 5-10 sekunder,
+så det er ikke mye overhead med det - faktisk tar det antakeligvis leeenger tid bare å f.eks. gå til GitHub/CI for å starte en deploy.
+
+Men det _kan_ være litt knølete å få til et deterministisk bygg - avhengig av hvor mye egne "greier" man er avhengig av å kopiere inn i docker-imaget.
+
+Et "fattigmanns-alternativ" ville kunne være hvis man på noe vis kan pause CI-pipelinen som da viser docker-image-Id,
+hvorpå utvikler kan klippe ut den, generere signaur over den lokalt, og så legge signaturen inn i pipelinen for at den kan fortsette.
+
+Da er man ikke avhengig av deterministisk docker-bygg. 
+I.e: Man trenger ikke å kunne reprodusere nøyaktig samme image i pipelinen som lokalt.
+Det er jo dog hakket mindre elegant, og utvikler må inn på GitHub for å lose deployen igjennom,
+og i teorien er man jo da også sårbar for phishing og/eller endringer i pipeline-bygget som ikke utvikler opplevde lokalt - 
+i.e: man kan ikke garantere at resultatet er nøyaktig samme som utvikler så for seg.
+
+Enda enklere kan man også la privat-nøkkelen ligge som en "secret" i GitHub-repoet,
+men da er man jo tilbake dit at den eneste barrieren for å deploye er tilgang til GitHub-kontoen,
+så det vil vel kanksje ikke gi så veeeldig mye mer enn det å bare basere seg på "DEPLOY_API_KEY" i repo-secret.
+
+Men uansett hvordan utviklerne løser signeringen, så vil behovet på deployment-agenten - og det den skal verifisere - være akkurat det samme;
+så vil det være opp til team/utvikler hvor sikkert og/eller elegant man ønsker løse det 
+(i.e: "offline" signering på utvikler-PC (sikrest + mest elegant) vs. signering i pipelinen (minst sikkert + minst elegant) 
+eller en løsning på halvveien.)
+
+
+### Annet:
+
+- Burde selve deploy-parameterne i yaml _også_ signeres? 
+
 
 
 
