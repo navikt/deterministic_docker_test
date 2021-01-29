@@ -139,11 +139,11 @@ eller en løsning på halvveien.)
 
 ### Annet:
 
-- Burde selve deploy-parameterne i yaml _også_ signeres? 
 - Man vil jo _anta_ at integriteten i et docker-image verifiseres før det får starte, og i hvertfall før et docker-repo godtar å lagre det, 
   men om det er mulig å "cracke" et docker-image ved å bytte ut "Id" (altså sånn at "Id" faktisk _ikke_ er riktig sha256-hash over docker-config-json´en),
   og om det er mulig å allikevel deploye det p.g.a. ev. manglende integritetssjekk av performance-hensyn(?) bør nesten dobbelsjekkes.
   Om så - så går det ev. an å integritetssjekke innholdet på egenhånd.
+- Burde selve deploy-parameterne i yaml _også_ signeres? 
 
 
 
