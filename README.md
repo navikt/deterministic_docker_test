@@ -95,18 +95,18 @@ Men det [preverify.sh](preverify.sh) gjør er da i prinsippet akkurat det samme 
 Innholdet i "imageid.sign" må altså formidles til deployment-agenten, f.eks. som en hex-string-verdi i deployment-yaml.
 
 Hovedforskjellen er at her i "preverify" verifiseres signaturen opp mot "pub.key" som ligger i repoet (hvor det tas for gitt at denne er gyldig/riktig).
-Denne public-Key´en kunne også godt vært sendt med (i yaml feks) til deployment-agent, men deployment agenten er nødt til å
+Denne public-Key´en kunne også godt vært sendt med (i yaml feks) til deployment-agent, men deployment-agenten er nødt til å
 verifisere at denne public-key faktisk representerer noe(n) som har rettigheter til å deploye denne appen (eller til dette namespacet).
-Da må nødvendigvis deploymant-agent ha tilgang til en liste over hvilke public-keys som er knyttet til hvilke rettigheter.
+Da må nødvendigvis deployment-agent ha tilgang til en liste over hvilke public-keys som er knyttet til hvilke rettigheter.
 
-Dette _kunne_ f.eks. vært en-til-en mellom nøkkel og utvikler; veldig enkelt og greit, og det funker jo, men det _kan_ jo bli jo da en god del nøkler å holde styr på 
+Dette _kunne_ f.eks. vært en-til-en mellom nøkkel og utvikler; veldig enkelt og greit, og det funker jo, men det _kan_ jo da bli en god del nøkler å holde styr på 
 (nye nøkler/utviklere kommer til, nøkler må rulleres eller kommer på avveie og må revokeres etc.)
 
 Alternativt - hvis man ønsker mindre vedlikehold/oppdateringer på server - kan man flytte litt av ansvaret ut til teamene selv,,,
 ved å tenke litt PKI(PublicKeyInfrastructure)-ish, hvor deployment-agent kun sitter med en liste over "rot-nøkler", f.eks. én per Team/namespace,
 og hvor teamet kun bruker rot-nøkkelen til å "utstede" individuelle nøkler med begrenset varighet (og ev. med begrenset rettighet/"usage") - altså rett og slett "sertifikater".
 
-På deploy-agent siden vil det da eventuelt ikke være stort mer komplisert enn at man må sjekke to signaturer i stedet for én, 
+På deploy-agent-siden vil det da eventuelt ikke være stort _mer_ komplisert enn at man må sjekke to signaturer i stedet for én, 
 men hvor man til gjengjeld da kan slippe unna med litt mindre "gjennomtrekk" i publickey-listene.
 
 
