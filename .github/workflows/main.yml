@@ -14,12 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-
-#      - name: Mount bazel cache
-#        uses: actions/cache@v1
-#        with:
-#          path: "/home/runner/.cache/bazel"
-#          key: bazel
       - name: Install bazelisk
         run: |
           curl -LO "https://github.com/bazelbuild/bazelisk/releases/download/v1.7.4/bazelisk-linux-amd64"
@@ -47,18 +41,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Build bazel docker image:
           "${GITHUB_WORKSPACE}/bin/bazel" build //:determ-docker-test
+          # Import from bazel into local docker registry:
           "${GITHUB_WORKSPACE}/bin/bazel" run //:determ-docker-test
-          docker image inspect bazel:determ-docker-test
-          echo "INSPECT .Id = "
-          docker image inspect bazel:determ-docker-test -f '{{.Id}}'
-
-          echo "app.jar = "
-          jar -tfv build/libs/app.jar
-          ls -l build/libs/app.jar
-          shasum -a 256 build/libs/app.jar
 
           export IMAGE_ID="$(docker image inspect bazel:determ-docker-test -f '{{.Id}}')"
+          echo "Image Id = ${IMAGE_ID}"
+          # TAG our image with desired tag:
           docker tag ${IMAGE_ID} ${IMAGE}
 
           echo "Preverifying"

@@ -1,26 +1,14 @@
-
-
-
-
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
-
-# load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
-
 load("@rules_pkg//:pkg.bzl", "pkg_tar")
 
-
-# package(default_visibility = ["//visibility:public"])
-
 container_image(
+    # name: When imported to local docker REPOSITORY will be "bazel" and "TAG" will this name.
+    # Docker tag-command can then be used to tag with another name and tag.
     name = "determ-docker-test",
+    # base: This is defined container_pull-target in the WORKSPACE-file:
     base = "@nav_java_12//image",
-    #files = [
-    #    "build/libs/app.jar", # Må til /app
-    #    "build/libs/ktor-io-jvm-1.4.3.jar",
-    #],
+    # tars: pkg_tar-target is used to place files into a specific directory.dock
     tars = [":build-libs"],
-    #files = glob(["build/libs/*.jar"]),
-    #[":build-libs"],
     labels = {
         "desc": "Description for version 7.7",
         "version": "7.7",
@@ -30,7 +18,7 @@ container_image(
 filegroup(
     name = "myjars",
     srcs = glob([
-        "**/*.jar",
+        "**/build/libs/*.jar",
     ]),
 )
 

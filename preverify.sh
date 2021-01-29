@@ -17,5 +17,12 @@ then
 fi
 
 docker image inspect ${IMAGE_TAG}
-echo "Signature verification failed. No reason to continue with deploy. Compare image-info above with local image for debugging."
+
+echo "app.jar = "
+jar -tfv build/libs/app.jar
+ls -l build/libs/app.jar
+echo "SHA256 over app.jar = "
+shasum -a 256 build/libs/app.jar
+
+echo "Signature verification failed. No reason to continue with deploy. Compare image-info and app.jar SHA256 above with local image for debugging."
 exit 1
