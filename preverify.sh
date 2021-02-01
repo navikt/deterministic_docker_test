@@ -27,8 +27,8 @@ java --version
 ./gradlew --version
 
 ####### DEBUG
-unzip build/libs/app.jar no/brreg/saksys/grunndata/ws/ErFrService.class
-xxd no/brreg/saksys/grunndata/ws/ErFrService.class
+# unzip build/libs/app.jar no/brreg/saksys/grunndata/ws/ErFrService.class
+# xxd no/brreg/saksys/grunndata/ws/ErFrService.class
 ##########
 
 echo "Signature verification failed. No reason to continue with deploy. Compare image-info and app.jar SHA256 above with local image for debugging."

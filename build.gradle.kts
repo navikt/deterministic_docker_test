@@ -109,12 +109,12 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_12
-    targetCompatibility = JavaVersion.VERSION_12
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 task("enforceJavaVersion") {
-    val requiredVersion: JavaVersion = JavaVersion.VERSION_12
+    val requiredVersion: JavaVersion = JavaVersion.VERSION_11
     if (JavaVersion.current() != requiredVersion) {
         throw IllegalStateException("ERROR: Java $requiredVersion required. Must use specific version to ensure deterministic build (to get same result locally and remote).")
     }
