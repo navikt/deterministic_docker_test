@@ -3,6 +3,7 @@ import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import java.util.zip.ZipEntry
 import java.lang.IllegalArgumentException
+import java.lang.IllegalStateException
 import java.nio.file.attribute.FileTime
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -110,6 +111,17 @@ dependencies {
 java {
     sourceCompatibility = JavaVersion.VERSION_12
     targetCompatibility = JavaVersion.VERSION_12
+}
+
+task("enforceJavaVersion") {
+    val requiredVersion: JavaVersion = JavaVersion.VERSION_12
+    if (JavaVersion.current() != requiredVersion) {
+        throw IllegalStateException("ERROR: Java $requiredVersion required. Must use specific version to ensure deterministic build (to get same result locally and remote).")
+    }
+}
+
+tasks.compileJava {
+    dependsOn("enforceJavaVersion")
 }
 
 tasks.withType<KotlinCompile> {
