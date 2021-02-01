@@ -45,6 +45,7 @@ Det blir typisk noen litt tilfeldige forskjeller i resultatet når man bygger do
   og da er det viktig at tidsstempler + rekkefølge på innholdet i JAR-fila blir det samme.
   I denne POCen fikses det med en liten kode-snutt i ```build.gradle.kts``` som rett og slett løper gjennom JAR-fila som gradle genererte,
   setter filetime til 1.1.1970 på hvert element og sorterer de i en forutsigbar rekkefølge.
+  Det er også viktig at koden er kompilert med samme kompilator-versjon, og at det ikke blir med andre byggmiljø-spesifikke ting/metadata i utputten (som f.eks. hardkodede filbaner til WSDL-filer brukt til kodegenerering)
   
 - Så må selvfølgelig deploy-agent kunne verifisere signaturer, og da må en ha en måte for denne å få tak i verifiserte public-keyer med tilknyttede rettigheter.
 Dette kan jo være enkelt eller avansert; per individ, per team etc. 
