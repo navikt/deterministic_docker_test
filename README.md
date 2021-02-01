@@ -9,8 +9,8 @@
  - Signaturen sendes til deploy-agent via GitHub-actions (eller annen CI-pipeline) og deploy-agent verifiserer signaturen mot docker-imaget som skal deployes.
     
 ### Hvorfor?
-- Deployment-agent kan verifisere at docker-imaget inneholder nøyaktig samme kode, biblioteker og base-image som det utvikler hadde lokalt på sin PC når han/hun pushet endringen.
-- Tilgang til utviklers GitHub-konto vil ikke være tilstrekkelig for å kunne deploye kode. Det eneste man kan gjøre fra en kapret GitHub-konto vil være å deploye tidligere versjoner av appen.
+- Deployment-agent kan verifisere at docker-imaget inneholder nøyaktig samme kode (kompilert med samme kompilator), biblioteker og base-image som det utvikler hadde lokalt på sin PC når han/hun pushet endringen.
+- Tilgang til utviklers GitHub-konto vil ikke være tilstrekkelig for å kunne deploye ny kode. Det eneste man kan gjøre fra en kapret GitHub-konto vil være å deploye tidligere versjoner av appen.
 - Utvikler kan signere _hele_ docker-imaget ende-til-ende men allikevel slippe unna med å bare pushe en liten kodeendring + en liten signatur.
 
 ### Hvordan?
@@ -116,10 +116,11 @@ men hvor man til gjengjeld da kan slippe unna med litt mindre "gjennomtrekk" i p
 Når man har bazel-oppsettet i orden, og når man har cachet base-image, så vil ikke et ny-bygg + re-signering lokalt ta mer enn 5-10 sekunder,
 så det er ikke mye overhead med det - faktisk tar det antakeligvis leeenger tid bare å f.eks. gå til GitHub/CI for å starte en deploy.
 
-Men det _kan_ være litt knølete å få til et deterministisk bygg - avhengig av hvor mye egne "greier" man er avhengig av å kopiere inn i docker-imaget.
+Å strebe etter et deterministisk bygg tvinger jo også frem en fin forutsigbarhet + "renslighet" i bygge-mekanikken,
+men det _kan_ være litt knølete å få til et 100% deterministisk bygg - avhengig av hvor mye egne "greier" man er avhengig av å kopiere inn i docker-imaget.
 
-Et "fattigmanns-alternativ" ville kunne være hvis man på noe vis kan pause CI-pipelinen som da viser docker-image-Id,
-hvorpå utvikler kan klippe ut den, generere signaur over den lokalt, og så legge signaturen inn i pipelinen for at den kan fortsette.
+Som et "fattigmanns-alternativ", i f.eks. en overgangsfase, kan man alternativt tenke seg at hvis man på noe vis kan pause CI-pipelinen som da viser docker-image-Id,
+så kan utvikler kan klippe ut den, generere signaur over den lokalt, og så legge signaturen inn i pipelinen for at den kan fortsette.
 
 Da er man ikke avhengig av deterministisk docker-bygg. 
 I.e: Man trenger ikke å kunne reprodusere nøyaktig samme image i pipelinen som lokalt.
@@ -143,7 +144,7 @@ eller en løsning på halvveien.)
   men om det er mulig å "cracke" et docker-image ved å bytte ut "Id" (altså sånn at "Id" faktisk _ikke_ er riktig sha256-hash over docker-config-json´en),
   og om det er mulig å allikevel deploye det p.g.a. ev. manglende integritetssjekk av performance-hensyn(?) bør nesten dobbelsjekkes.
   Om så - så går det ev. an å integritetssjekke innholdet på egenhånd.
-- Burde selve deploy-parameterne i yaml _også_ signeres? 
+- Burde selve deploy-parameterne i yaml _også_ signeres? (Hvis ikke den signeres _kan_ jo "angriper" f.eks. provisjonere baser/rettigheter... men får jo riktignok ikke deployet noe kode for å utnytte det)
 
 
 
