@@ -17,7 +17,7 @@ val slf4jVersion = "1.7.30"
 val logbackVersion = "1.2.3"
 val logstashEncoderVersion = "6.5"
 val serializerVersion = "1.0.1"
-val apacheCxfVersion = "3.3.5"
+val apacheCxfVersion = "3.3.9"
 val jakartaActivationVersion = "1.2.2"
 
 group = "no.nav.helse"
